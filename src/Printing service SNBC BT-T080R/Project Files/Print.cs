@@ -37,19 +37,20 @@ public class Print
     private const int BUNDLER_PRESENT = 0x01;
 
     //Init variable
-    private int nPortType = PORT_TYPE_COM;
-    private int nMode = PRINT_MODE_STANDRAD;
-    private int nPageWidth = PAGE_WDITH_80;
-    private int nResolution = RESOLUTION_203_DPI;
-    private int nPaperOut = PAPER_OUT_PRESENTER;
-    private int nPresenter = PRESENTER_RETRACT;
-    private int nBundler = BUNDLER_RETRACT;
+    public int nPortType = PORT_TYPE_USB;
+    public int nMode = PRINT_MODE_STANDRAD;
+    public int nPageWidth = PAGE_WDITH_80;
+    public int nResolution = RESOLUTION_203_DPI;
+    public int nPaperOut = PAPER_OUT_PRESENTER;
+    public int nPresenter = PRESENTER_RETRACT;
+    public int nBundler = BUNDLER_RETRACT;
 
-    private int hPort = -1;
-    private bool IsPrinter = false;
-    private bool bSaveToTxt = false;
-    static bool bIsFirst = true;
-    private bool bThreadRunning = false;
+    public static bool bIsFirst = true;
+
+    public int hPort = -1;
+    public bool IsPrinter = false;
+    public bool bSaveToTxt = false;
+    public bool bThreadRunning = false;
 
     #region KIOSKDLL const declare
 
@@ -532,205 +533,6 @@ public class Print
     private static extern int KIOSK_SetBundlerInfo(int hPort, int nPortType, int nMode);
 
     #endregion
-
-    #endregion
-
-    #region 80mm_203DPI_Standard_Mode
-
-/******************************************************************************************************************************************
-  Функция:           PrintInStandardMode80_203DPI()
-  Описание:          пример печати
-  Вызовы:            KIOSK_PreDownloadBmpToFlash()       // Предварительная загрузка группы битовых изображений во флэш-память, указывая их идентификатор.
-                     KIOSK_Reset()                       // Сброс принтера.
-                     KIOSK_SetMode()                     // Установка режима печати.
-                     KIOSK_SetMotionUnit()               // Установка единиц движения.
-                     KIOSK_S_SetLeftMarginAndAreaWidth() // Установка ширины области печати и левого отступа.
-                     KIOSK_SetRightSpacing()             // Установка правого отступа символов.
-                     KIOSK_SetLineSpacing()              // Установка межстрочного интервала.
-                     KIOSK_S_Textout()                   // Запись строки символов в указанную позицию.
-                     KIOSK_FeedLine()                    // Подача бумаги на 1 линию.
-                     KIOSK_FeedLines()                   // Подача бумаги вперед.
-                     KIOSK_S_PrintBarcode()              // Печать штрих-кода в указанном месте с заданными параметрами.
-                     KIOSK_S_PrintBmpInFlash()           // Печать битового изображения из флэш-памяти, указывая его идентификатор.
-                     KIOSK_CutPaper()                    // Обрезка бумаги.
-  Вызывается из:     button_Print_Click(object sender, EventArgs e)
-  Ввод:              hPort: идентификатор порта
-                     nPortType: 0-серийный порт; 1-LPT порт; 2-USB порт; 3-драйвер порта
-  Возвращение:       Возвращает True в случае успешного выполнения, False в противном случае.
-********************************************************************************************************************************************/
-    public bool PrintInStandardMode80_203DPI(int hPort, int nPortType)
-    {
-        //Загрузка изображений во Flash.
-
-        bIsFirst = true;
-
-        if (bIsFirst)
-        {
-            string[] pBitImages = ["qr.bmp"];
-
-            if (KIOSK_SUCCESS != KIOSK_PreDownloadBmpToFlash(hPort, nPortType, pBitImages, 2, 2))
-            {
-                return false;
-            }
-
-            bIsFirst = false;
-        }
-
-        // Настройка печати.
-        KIOSK_Reset(hPort, nPortType);
-
-        KIOSK_SetMode(hPort, nPortType, KIOSK_PRINT_MODE_STANDARD);
-
-        if (KIOSK_SUCCESS != KIOSK_SetMotionUnit(hPort, nPortType, 203, 203))
-        {
-            return false;
-        }
-
-        KIOSK_S_SetLeftMarginAndAreaWidth(hPort, nPortType, 0, 640);
-
-        KIOSK_SetRightSpacing(hPort, nPortType, 0);
-
-        KIOSK_SetLineSpacing(hPort, nPortType, 95);
-
-        // Настройка текста
-        KIOSK_S_Textout(hPort, nPortType, "KIOSK Printer", 182, 2, 2,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_BOLD);
-
-        KIOSK_SetLineSpacing(hPort, nPortType, 24);
-
-        KIOSK_FeedLines(hPort, nPortType, 3);
-
-        KIOSK_S_Textout(hPort, nPortType, "------------------------------------------", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_BOLD);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_S_Textout(hPort, nPortType, "------------------------------------------", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLines(hPort, nPortType, 2);
-
-        // Различное правое расстояние	
-        KIOSK_SetRightSpacing(hPort, nPortType, 0);
-
-        KIOSK_S_Textout(hPort, nPortType, "Right Spacing", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_S_Textout(hPort, nPortType, "KIOSK Printer", 330, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_SetRightSpacing(hPort, nPortType, 2);
-
-        KIOSK_S_Textout(hPort, nPortType, "Right Spacing", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_S_Textout(hPort, nPortType, "KIOSK Printer", 330, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_SetRightSpacing(hPort, nPortType, 4);
-
-        KIOSK_S_Textout(hPort, nPortType, "Right Spacing", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_S_Textout(hPort, nPortType, "KIOSK Printer", 330, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLines(hPort, nPortType, 2);
-
-
-        // Другой шрифт
-        KIOSK_SetRightSpacing(hPort, nPortType, 2);
-
-        KIOSK_S_Textout(hPort, nPortType, "FONTSTYLE-NORMAL", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-
-        KIOSK_S_Textout(hPort, nPortType, "FONTSTYLE-BOLD", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_BOLD);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-
-        KIOSK_S_Textout(hPort, nPortType, "FONTSTYLE-UNDERLINE", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_THICK_UNDERLINE);
-
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_S_Textout(hPort, nPortType, "FONTSTYLE-UNDERLINE", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_THIN_UNDERLINE);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-
-        KIOSK_S_Textout(hPort, nPortType, "FONTSTYLE-REVERSE", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_REVERSE);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-
-        KIOSK_S_Textout(hPort, nPortType, "FONTSTYLE-90", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_CLOCKWISE_90);
-
-        KIOSK_FeedLines(hPort, nPortType, 2);
-
-        KIOSK_SetRightSpacing(hPort, nPortType, 0);
-
-        KIOSK_S_Textout(hPort, nPortType, "------------------------------------------", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        // Настройка штрих-кода.
-        KIOSK_S_Textout(hPort, nPortType, "Barcode - Code 128", 95, 1, 1,
-            KIOSK_FONT_TYPE_COMPRESSED, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_S_PrintBarcode(hPort, nPortType, "{A*1234ABCDE*{C5678".ToCharArray(), 95, KIOSK_BARCODE_TYPE_CODE128,
-            2, 50, KIOSK_FONT_TYPE_COMPRESSED, KIOSK_HRI_POSITION_BOTH, 19);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-
-        KIOSK_S_Textout(hPort, nPortType, "------------------------------------------", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        // Настройка растрового изображения.
-        KIOSK_S_Textout(hPort, nPortType, "------------------Logo 1------------------", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_S_PrintBmpInFlash(hPort, nPortType, 1, 100, KIOSK_BITMAP_PRINT_QUADRUPLE);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_S_Textout(hPort, nPortType, "------------------Logo 2------------------", 95, 1, 1,
-            KIOSK_FONT_TYPE_STANDARD, KIOSK_FONT_STYLE_NORMAL);
-
-        KIOSK_FeedLine(hPort, nPortType);
-
-        KIOSK_S_PrintBmpInFlash(hPort, nPortType, 2, 95, KIOSK_BITMAP_PRINT_QUADRUPLE);
-
-        // Настройка печати.
-        KIOSK_FeedLine(hPort, nPortType);
-        KIOSK_FeedLine(hPort, nPortType);
-        KIOSK_FeedLine(hPort, nPortType);
-        KIOSK_FeedLine(hPort, nPortType);
-
-        // Разрезать бумагу
-        KIOSK_CutPaper(hPort, nPortType, 1, 0);
-        return true;
-    }
 
     #endregion
 }

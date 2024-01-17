@@ -1,3 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Project_Files;
 
-Console.WriteLine("Hello, World!");
+var p = new Print();
+// p.Printing();

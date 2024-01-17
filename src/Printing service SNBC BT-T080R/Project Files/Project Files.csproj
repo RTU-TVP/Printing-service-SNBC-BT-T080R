@@ -9,4 +9,11 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Remove="QrCode.bmp" />
+      <Resource Include="QrCode.bmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+    </ItemGroup>
+
 </Project>
